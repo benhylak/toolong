@@ -100,9 +100,9 @@ class FindDialog(Widget, can_focus_children=True):
             id="find-text",
             suggester=self.suggester,
         )
-        yield Checkbox("Case sensitive", id="case-sensitive")
-        yield Checkbox("Regex", id="regex")
         yield Checkbox("Filter", id="filter-mode")
+        yield Checkbox("Regex", id="regex")
+        yield Checkbox("Case sensitive", id="case-sensitive")
 
     def focus_input(self) -> None:
         if self.has_class("find-regex"):
