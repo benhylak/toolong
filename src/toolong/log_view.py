@@ -173,6 +173,14 @@ class LogFooter(Widget):
                 display: block;
             }
         }
+        .branding {
+            dock: right;
+            width: auto;
+            height: 1;
+            color: $primary;
+            text-style: bold;
+            padding: 0 1;
+        }
     }
     """
     line_no: reactive[int | None] = reactive(None)
@@ -190,6 +198,7 @@ class LogFooter(Widget):
             pass
         yield Label("TAIL", classes="tail")
         yield MetaLabel("", classes="meta")
+        yield Label("RAINDROP", classes="branding")
 
     async def mount_keys(self) -> None:
         try:

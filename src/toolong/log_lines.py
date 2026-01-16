@@ -701,7 +701,7 @@ class LogLines(ScrollView, inherit_bindings=False):
                 else "loglines--line-numbers"
             )
             if self.pointer_line is not None and index == self.pointer_line:
-                icon = "👉"
+                icon = ">"
             else:
                 icon = self.icons.get(index, " ")
 
