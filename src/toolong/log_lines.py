@@ -139,6 +139,7 @@ class LogLines(ScrollView, inherit_bindings=False):
         Binding("pagedown,space", "page_down", "Page Down", show=False),
         Binding("enter", "select", "Select line", show=False),
         Binding("escape", "dismiss", "Dismiss", show=False, priority=True),
+        Binding("c", "copy_line", "Copy line", show=False),
         Binding("m", "navigate(+1, 'm')"),
         Binding("M", "navigate(-1, 'm')"),
         Binding("o", "navigate(+1, 'h')"),
@@ -942,6 +943,13 @@ class LogLines(ScrollView, inherit_bindings=False):
             self.pointer_line = self.scroll_offset.y
         else:
             self.post_message(FindDialog.SelectLine())
+
+    def action_copy_line(self):
+        line_no = self.pointer_line if self.pointer_line is not None else self.scroll_offset.y
+        line = self.get_line_from_index_blocking(line_no)
+        if line:
+            self.app.copy_to_clipboard(line)
+            self.notify("Copied line", timeout=1)
 
     def action_dismiss(self):
         if self.initial_scan_worker is not None and self.initial_scan_worker.is_running:
