@@ -449,6 +449,9 @@ class LogView(Horizontal):
             self.notify("Can't tail merged files", title="Tail", severity="error")
         else:
             self.tail = not self.tail
+            if self.tail:
+                log_lines = self.query_one(LogLines)
+                log_lines.scroll_to(y=log_lines.max_scroll_y, animate=False)
 
     def action_show_find_dialog(self) -> None:
         find_dialog = self.query_one(FindDialog)
