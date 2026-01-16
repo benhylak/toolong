@@ -204,7 +204,7 @@ class LogFooter(Widget):
             pass
         yield Label("TAIL", classes="tail")
         yield MetaLabel("", classes="meta")
-        yield Label("(Hold ⇧ to select text)", classes="hint")
+        yield Label("(Hold shift to select text)", classes="hint")
         yield Label("RAINDROP", classes="branding")
 
     async def mount_keys(self) -> None:
