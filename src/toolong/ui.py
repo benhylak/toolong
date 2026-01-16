@@ -80,11 +80,21 @@ class LogScreen(Screen):
 
     def action_prev_tab(self) -> None:
         tabbed = self.query_one(TabbedContent)
-        tabbed.action_previous_tab()
+        tabs = list(self.query(TabPane))
+        if len(tabs) <= 1:
+            return
+        current_idx = next((i for i, t in enumerate(tabs) if t.id == tabbed.active), 0)
+        new_idx = (current_idx - 1) % len(tabs)
+        tabbed.active = tabs[new_idx].id
 
     def action_next_tab(self) -> None:
         tabbed = self.query_one(TabbedContent)
-        tabbed.action_next_tab()
+        tabs = list(self.query(TabPane))
+        if len(tabs) <= 1:
+            return
+        current_idx = next((i for i, t in enumerate(tabs) if t.id == tabbed.active), 0)
+        new_idx = (current_idx + 1) % len(tabs)
+        tabbed.active = tabs[new_idx].id
 
 
 from functools import total_ordering
