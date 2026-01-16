@@ -930,7 +930,7 @@ class LogLines(ScrollView, inherit_bindings=False):
         if self.loading:
             return
         # Let Option+click pass through for text selection
-        if event.meta or event.alt:
+        if event.meta:
             return
         new_pointer_line = event.y + self.scroll_offset.y - self.gutter.top
         if new_pointer_line == self.pointer_line:
