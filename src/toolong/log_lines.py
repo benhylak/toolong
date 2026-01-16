@@ -1035,6 +1035,10 @@ class LogLines(ScrollView, inherit_bindings=False):
         if not event.tail or self.tail or first:
             self.update_line_count()
 
+        # Rebuild filter indices when new lines arrive in filter mode
+        if self.filter_mode and self.find and self.show_find:
+            self._build_filtered_indices()
+
         if self.tail:
             if self.pointer_line is not None and pointer_distance_from_end is not None:
                 self.pointer_line = self.virtual_size.height - pointer_distance_from_end
