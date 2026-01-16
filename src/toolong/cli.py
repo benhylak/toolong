@@ -26,12 +26,7 @@ from toolong.ui import UI
     default=True,
     help="Start in tail mode (default: tail).",
 )
-@click.option(
-    "--mouse/--no-mouse",
-    default=True,
-    help="Enable mouse support (default: enabled). Disable for text selection.",
-)
-def run(files: list[str], merge: bool, output_merge: str, tail: bool, mouse: bool) -> None:
+def run(files: list[str], merge: bool, output_merge: str, tail: bool) -> None:
     """View / tail / search log files."""
     stdin_tty = sys.__stdin__.isatty()
     if not files and stdin_tty:
@@ -41,7 +36,7 @@ def run(files: list[str], merge: bool, output_merge: str, tail: bool, mouse: boo
     if stdin_tty:
         try:
             ui = UI(files, merge=merge, save_merge=output_merge, tail=tail)
-            ui.run(mouse=mouse)
+            ui.run()
         except Exception:
             pass
     else:
