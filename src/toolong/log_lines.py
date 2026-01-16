@@ -640,8 +640,6 @@ class LogLines(ScrollView, inherit_bindings=False):
             self._gutter_width = len(f"{max_line_no+1} ")
         else:
             self._gutter_width = 0
-        if self.pointer_line is not None:
-            self._gutter_width += 3
 
         return super().render_lines(crop)
 
@@ -875,7 +873,6 @@ class LogLines(ScrollView, inherit_bindings=False):
             self.refresh_line(old_pointer_line)
         if pointer_line is not None:
             self.refresh_line(pointer_line)
-        self.show_gutter = pointer_line is not None
         self.post_message(PointerMoved(pointer_line))
 
     def action_scroll_up(self) -> None:

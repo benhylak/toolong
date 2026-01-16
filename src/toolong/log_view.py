@@ -288,7 +288,7 @@ class LogView(Horizontal):
         Binding("ctrl+f", "show_find_dialog", "Find", key_display="^f"),
         Binding("slash", "show_find_dialog", "Find", key_display="^f", show=False),
         Binding("ctrl+g", "goto", "Go to", key_display="^g"),
-        Binding("ctrl+b", "toggle_border", "Border", key_display="^b"),
+        Binding("c", "copy_line", "Copy line", key_display="c"),
     ]
 
     show_find: reactive[bool] = reactive(False)
@@ -460,6 +460,6 @@ class LogView(Horizontal):
 
         self.app.push_screen(GotoScreen(self.query_one(LogLines)))
 
-    def action_toggle_border(self) -> None:
+    def action_copy_line(self) -> None:
         log_lines = self.query_one(LogLines)
-        log_lines.show_border = not log_lines.show_border
+        log_lines.action_copy_line()
