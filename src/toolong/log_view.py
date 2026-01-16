@@ -279,6 +279,7 @@ class LogView(Horizontal):
         Binding("ctrl+f", "show_find_dialog", "Find", key_display="^f"),
         Binding("slash", "show_find_dialog", "Find", key_display="^f", show=False),
         Binding("ctrl+g", "goto", "Go to", key_display="^g"),
+        Binding("ctrl+b", "toggle_border", "Border", key_display="^b"),
     ]
 
     show_find: reactive[bool] = reactive(False)
@@ -315,6 +316,7 @@ class LogView(Horizontal):
         log_lines.find = event.find
         log_lines.regex = event.regex
         log_lines.case_sensitive = event.case_sensitive
+        log_lines.filter_mode = event.filter_mode
 
     async def watch_show_find(self, show_find: bool) -> None:
         if not self.is_mounted:
@@ -447,3 +449,7 @@ class LogView(Horizontal):
         from toolong.goto_screen import GotoScreen
 
         self.app.push_screen(GotoScreen(self.query_one(LogLines)))
+
+    def action_toggle_border(self) -> None:
+        log_lines = self.query_one(LogLines)
+        log_lines.show_border = not log_lines.show_border

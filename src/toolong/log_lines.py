@@ -170,6 +170,12 @@ class LogLines(ScrollView, inherit_bindings=False):
         &.-scanning {
             tint: $background 30%;
         }
+        &.-no-border {
+            border: none;
+            &:focus {
+                border: none;
+            }
+        }
         .loglines--line-numbers {
             color: $warning 70%;            
         }
@@ -190,6 +196,8 @@ class LogLines(ScrollView, inherit_bindings=False):
     find = reactive("")
     case_sensitive = reactive(False)
     regex = reactive(False)
+    filter_mode = reactive(False)
+    show_border = reactive(False)
     show_gutter = reactive(False)
     pointer_line: reactive[int | None] = reactive(None, repaint=False)
     is_scrolling: reactive[int] = reactive(int)
@@ -223,6 +231,7 @@ class LogLines(ScrollView, inherit_bindings=False):
         self._line_reader = LineReader(self)
         self._merge_lines: list[tuple[float, int, LogFile]] | None = None
         self._lock = RLock()
+        self._filtered_indices: list[int] | None = None
 
     @property
     def log_file(self) -> LogFile:
@@ -231,9 +240,47 @@ class LogLines(ScrollView, inherit_bindings=False):
     @property
     def line_count(self) -> int:
         with self._lock:
+            if self.filter_mode and self.find and self.show_find:
+                if self._filtered_indices is not None:
+                    return len(self._filtered_indices)
             if self._merge_lines is not None:
                 return len(self._merge_lines)
             return self._line_count
+
+    @property
+    def _raw_line_count(self) -> int:
+        """Get the unfiltered line count."""
+        with self._lock:
+            if self._merge_lines is not None:
+                return len(self._merge_lines)
+            return self._line_count
+
+    def _build_filtered_indices(self) -> None:
+        """Build the list of filtered line indices."""
+        if not self.filter_mode or not self.find or not self.show_find:
+            self._filtered_indices = None
+            return
+
+        filtered: list[int] = []
+        check_match = self.check_match
+        raw_count = self._raw_line_count
+
+        with self._lock:
+            for line_no in range(raw_count):
+                log_file, start, end = self.index_to_span(line_no, raw=True)
+                line = log_file.get_raw(start, end).decode("utf-8", errors="replace")
+                if check_match(line):
+                    filtered.append(line_no)
+
+        self._filtered_indices = filtered
+
+    def _get_actual_index(self, display_index: int) -> int:
+        """Convert a display index to the actual line index."""
+        if self._filtered_indices is not None:
+            if 0 <= display_index < len(self._filtered_indices):
+                return self._filtered_indices[display_index]
+            return display_index
+        return display_index
 
     @property
     def gutter_width(self) -> int:
@@ -266,6 +313,8 @@ class LogLines(ScrollView, inherit_bindings=False):
     def on_mount(self) -> None:
         self.loading = True
         self.add_class("-scanning")
+        if not self.show_border:
+            self.add_class("-no-border")
         self._line_reader.start()
         self.initial_scan_worker = self.run_scan(self.app.save_merge)
 
@@ -460,7 +509,9 @@ class LogLines(ScrollView, inherit_bindings=False):
             return log_file, index
         return self.log_files[0], index
 
-    def index_to_span(self, index: int) -> tuple[LogFile, int, int]:
+    def index_to_span(self, index: int, raw: bool = False) -> tuple[LogFile, int, int]:
+        if not raw:
+            index = self._get_actual_index(index)
         log_file, index = self.get_log_file_from_index(index)
         line_breaks = self._line_breaks.setdefault(log_file, [])
         scan_start = 0 if self._merge_lines else self._scan_start
@@ -731,6 +782,16 @@ class LogLines(ScrollView, inherit_bindings=False):
         scroll_y = self.scroll_offset.y
         max_scroll_y = scroll_y + self.scrollable_content_region.height - 1
         if self.show_find:
+            # In filter mode, all visible lines match, so just move to next line
+            if self.filter_mode and self._filtered_indices is not None:
+                new_pointer = clamp(start_line, 0, self.line_count - 1)
+                if new_pointer != self.pointer_line or first:
+                    self.pointer_line = new_pointer
+                    self.scroll_pointer_to_center()
+                else:
+                    self.app.bell()
+                return
+
             check_match = self.check_match
             index_to_span = self.index_to_span
             with self._lock:
@@ -771,16 +832,43 @@ class LogLines(ScrollView, inherit_bindings=False):
         self.clear_caches()
         if not show_find:
             self.pointer_line = None
+            if self.filter_mode:
+                self._filtered_indices = None
+                self.refresh()
+        elif self.filter_mode and self.find:
+            self._rebuild_filter()
 
     def watch_find(self, find: str) -> None:
         if not find:
             self.pointer_line = None
+        if self.filter_mode:
+            self._rebuild_filter()
 
     def watch_case_sensitive(self) -> None:
         self.clear_caches()
+        if self.filter_mode:
+            self._rebuild_filter()
 
     def watch_regex(self) -> None:
         self.clear_caches()
+        if self.filter_mode:
+            self._rebuild_filter()
+
+    def watch_filter_mode(self) -> None:
+        self.clear_caches()
+        self._rebuild_filter()
+
+    def _rebuild_filter(self) -> None:
+        """Rebuild filtered indices based on current filter settings."""
+        if self.filter_mode and self.find and self.show_find:
+            self._build_filtered_indices()
+        else:
+            self._filtered_indices = None
+        self.pointer_line = None
+        self.refresh()
+
+    def watch_show_border(self, show_border: bool) -> None:
+        self.set_class(not show_border, "-no-border")
 
     def watch_pointer_line(
         self, old_pointer_line: int | None, pointer_line: int | None

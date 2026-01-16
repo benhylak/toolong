@@ -105,6 +105,26 @@ class CompareTokens:
 class UI(App):
     """The top level App object."""
 
+    CSS = """
+    * {
+        background: transparent;
+    }
+    Checkbox {
+        background: transparent;
+        border: none;
+        padding: 0 1;
+    }
+    Checkbox > .toggle--button {
+        background: $surface;
+    }
+    .loglines--filter-highlight {
+        background: $secondary;
+    }
+    .loglines--pointer-highlight {
+        background: $primary;
+    }
+    """
+
     @classmethod
     def sort_paths(cls, paths: list[str]) -> list[str]:
         return sorted(paths, key=CompareTokens)

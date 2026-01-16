@@ -72,6 +72,7 @@ class FindDialog(Widget, can_focus_children=True):
         find: str
         regex: bool
         case_sensitive: bool
+        filter_mode: bool
 
     class Dismiss(Message):
         pass
@@ -101,6 +102,7 @@ class FindDialog(Widget, can_focus_children=True):
         )
         yield Checkbox("Case sensitive", id="case-sensitive")
         yield Checkbox("Regex", id="regex")
+        yield Checkbox("Filter", id="filter-mode")
 
     def focus_input(self) -> None:
         if self.has_class("find-regex"):
@@ -142,6 +144,7 @@ class FindDialog(Widget, can_focus_children=True):
             find=self.get_value(),
             regex=self.query_one("#regex", Checkbox).value,
             case_sensitive=self.query_one("#case-sensitive", Checkbox).value,
+            filter_mode=self.query_one("#filter-mode", Checkbox).value,
         )
         self.post_message(update)
 
