@@ -128,6 +128,8 @@ class SearchSuggester(Suggester):
 
 
 class LogLines(ScrollView, inherit_bindings=False):
+    ALLOW_SELECT = True
+
     BINDINGS = [
         Binding("up,w,k", "scroll_up", "Scroll Up", show=False),
         Binding("down,s,j", "scroll_down", "Scroll Down", show=False),

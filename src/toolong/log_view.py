@@ -289,6 +289,7 @@ class LogView(Horizontal):
         Binding("slash", "show_find_dialog", "Find", key_display="^f", show=False),
         Binding("ctrl+g", "goto", "Go to", key_display="^g"),
         Binding("c", "copy_line", "Copy line", key_display="c"),
+        Binding("ctrl+m", "toggle_mouse", "Mouse", key_display="^m"),
     ]
 
     show_find: reactive[bool] = reactive(False)
@@ -463,3 +464,13 @@ class LogView(Horizontal):
     def action_copy_line(self) -> None:
         log_lines = self.query_one(LogLines)
         log_lines.action_copy_line()
+
+    def action_toggle_mouse(self) -> None:
+        if getattr(self.app, '_mouse_enabled', True):
+            self.app._driver.disable_mouse_support()
+            self.app._mouse_enabled = False
+            self.notify("Mouse OFF - select text", timeout=1)
+        else:
+            self.app._driver.enable_mouse_support()
+            self.app._mouse_enabled = True
+            self.notify("Mouse ON", timeout=1)
