@@ -23,6 +23,8 @@ class LogScreen(Screen):
 
     BINDINGS = [
         Binding("f1", "help", "Help"),
+        Binding("left", "prev_tab", "Prev file", show=False),
+        Binding("right", "next_tab", "Next file", show=False),
     ]
 
     CSS = """
@@ -75,6 +77,14 @@ class LogScreen(Screen):
 
     def action_help(self) -> None:
         self.app.push_screen(HelpScreen())
+
+    def action_prev_tab(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        tabbed.action_previous_tab()
+
+    def action_next_tab(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        tabbed.action_next_tab()
 
 
 from functools import total_ordering
