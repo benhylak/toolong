@@ -926,8 +926,9 @@ class LogLines(ScrollView, inherit_bindings=False):
     def on_click(self, event: events.Click) -> None:
         if self.loading:
             return
-        # Let Option+click pass through for text selection
-        if event.meta:
+        # Let modifier+click pass through for text selection
+        if event.meta or event.ctrl or event.shift:
+            event.stop()
             return
         new_pointer_line = event.y + self.scroll_offset.y - self.gutter.top
         if new_pointer_line == self.pointer_line:
