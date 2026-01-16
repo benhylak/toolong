@@ -289,10 +289,11 @@ class LogView(Horizontal):
     can_tail: reactive[bool] = reactive(True)
 
     def __init__(
-        self, file_paths: list[str], watcher: WatcherBase, can_tail: bool = True
+        self, file_paths: list[str], watcher: WatcherBase, can_tail: bool = True, initial_tail: bool = True
     ) -> None:
         self.file_paths = file_paths
         self.watcher = watcher
+        self.initial_tail = initial_tail
         super().__init__()
         self.can_tail = can_tail
 
@@ -417,7 +418,7 @@ class LogView(Horizontal):
         log_lines.loading = False
         self.query_one("LogLines").remove_class("-scanning")
         self.post_message(PointerMoved(log_lines.pointer_line))
-        self.tail = True
+        self.tail = self.initial_tail
 
         footer = self.query_one(LogFooter)
         footer.call_after_refresh(footer.mount_keys)

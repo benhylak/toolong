@@ -51,6 +51,7 @@ class LogScreen(Screen):
                             self.app.file_paths,
                             self.app.watcher,
                             can_tail=False,
+                            initial_tail=self.app.initial_tail,
                         )
                     )
             else:
@@ -61,6 +62,7 @@ class LogScreen(Screen):
                                 [path],
                                 self.app.watcher,
                                 can_tail=True,
+                                initial_tail=self.app.initial_tail,
                             )
                         )
 
@@ -130,11 +132,12 @@ class UI(App):
         return sorted(paths, key=CompareTokens)
 
     def __init__(
-        self, file_paths: list[str], merge: bool = False, save_merge: str | None = None
+        self, file_paths: list[str], merge: bool = False, save_merge: str | None = None, tail: bool = True
     ) -> None:
         self.file_paths = self.sort_paths(file_paths)
         self.merge = merge
         self.save_merge = save_merge
+        self.initial_tail = tail
         self.watcher = get_watcher()
         super().__init__()
 
