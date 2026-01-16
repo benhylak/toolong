@@ -923,18 +923,6 @@ class LogLines(ScrollView, inherit_bindings=False):
             self.scroll_pointer_to_center()
         self.post_message(TailFile(False))
 
-    def on_click(self, event: events.Click) -> None:
-        if self.loading:
-            return
-        # Let modifier+click pass through for text selection
-        if event.meta or event.ctrl or event.shift:
-            event.stop()
-            return
-        new_pointer_line = event.y + self.scroll_offset.y - self.gutter.top
-        if new_pointer_line == self.pointer_line:
-            self.post_message(FindDialog.SelectLine())
-        self.pointer_line = new_pointer_line
-        self.post_message(TailFile(False))
 
     def action_select(self):
         if self.pointer_line is None:
