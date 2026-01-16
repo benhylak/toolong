@@ -700,10 +700,7 @@ class LogLines(ScrollView, inherit_bindings=False):
                 if index == self.pointer_line
                 else "loglines--line-numbers"
             )
-            if self.pointer_line is not None and index == self.pointer_line:
-                icon = ">"
-            else:
-                icon = self.icons.get(index, " ")
+            icon = self.icons.get(index, " ")
 
             if self.show_line_numbers:
                 segments = [Segment(f"{index+1} ", line_number_style), Segment(icon)]
